@@ -1,0 +1,12 @@
+{
+    "orgName": "Generate Order Inc",
+    "edition": "Enterprise",
+    "hasSampleData": true,
+    "features": ["AuthorApex"],
+    "settings" : {
+        "orgPreferenceSettings": {
+            "s1DesktopEnabled": true,
+            "enableOrders": true
+        }
+    }
+}
