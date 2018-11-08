@@ -1,0 +1,10 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId" controller="CreateOrderFromOpportunityController">
+    <aura:attribute name="opportunity" type="Opportunity" />
+    <aura:attribute name="newOrder" type="Order" default="{ 'sobjectType': 'Order' }" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <p>{!v.recordId}</p>
+    <p>{!v.newOrder.id}</p>
+
+    <lightning:button label="Create Order" onclick="{!c.createRelatedOrder}" class="slds-m-top_medium"/>
+</aura:component>	
