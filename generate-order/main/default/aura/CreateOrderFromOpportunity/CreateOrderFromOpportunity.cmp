@@ -1,10 +1,50 @@
-<aura:component implements="force:lightningQuickAction,force:hasRecordId" controller="CreateOrderFromOpportunityController">
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId" controller="CreateOrderFromOpportunityController">
     <aura:attribute name="opportunity" type="Opportunity" />
-    <aura:attribute name="newOrder" type="Order" default="{ 'sobjectType': 'Order' }" />
+    <aura:attribute name="simpleOpportunity" type="Object"/>
+    <aura:attribute name="opptyError" type="String"/>
+    <force:recordData aura:id="accountRecordLoader"
+        recordId="{!v.recordId}"
+        fields="Id,Name,ContractId,AccountId"
+        targetRecord="{!v.opportunity}"
+        targetFields="{!v.simpleOpportunity}"
+        targetError="{!v.opptyError}"
+    />
     
-    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <p>{!v.recordId}</p>
-    <p>{!v.newOrder.id}</p>
+    <aura:attribute name="newOrder" type="Object" access="private"/>
+    <aura:attribute name="simpleNewOrder" type="Object" access="private"/>
+    <aura:attribute name="newOrderError" type="String" access="private"/>
+    <force:recordData aura:id="orderRecordCreator"
+        layoutType="FULL"
+        targetRecord="{!v.newOrder}"
+        targetFields="{!v.simpleNewOrder}"
+        targetError="{!v.newOrderError}"
+    />
 
-    <lightning:button label="Create Order" onclick="{!c.createRelatedOrder}" class="slds-m-top_medium"/>
+    <div class="slds-page-header" role="banner">
+        <p class="slds-text-heading_label">{!v.simpleOpportunity.Name}</p>
+        <h1 class="slds-page-header__title slds-m-right_small
+            slds-truncate slds-align-left">Create New Order</h1>
+    </div>
+    <br/>
+    <div class="slds-card__body slds-card__body_inner">This action will create a new order and include all the 
+        products from the opportunity. Be sure to remove any unneeded products from the order after it is created!
+    </div>
+
+    <aura:if isTrue="{!not(empty(v.opptyError))}">
+        <div class="recordError">
+            <ui:message title="Error" severity="error" closable="true">
+                {!v.opptyError}
+            </ui:message>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!not(empty(v.newOrderError))}">
+        <div class="recordError">
+            <ui:message title="Error" severity="error" closable="true">
+                {!v.newOrderError}
+            </ui:message>
+        </div>
+    </aura:if>
+
+    <lightning:button label="Cancel" onclick="{!c.handleCancel}" class="slds-m-top_medium" />
+    <lightning:button variant="brand" label="Create Order" onclick="{!c.createRelatedOrder}" class="slds-m-top_medium"/>
 </aura:component>	

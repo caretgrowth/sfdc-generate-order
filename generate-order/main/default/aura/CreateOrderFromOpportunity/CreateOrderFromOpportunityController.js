@@ -1,20 +1,4 @@
 ({
-         
-    doInit : function(component, event, helper) {
-
-        var action = component.get("c.getOpportunity");
-        action.setParams({"opptyId": component.get("v.recordId")});
-
-        action.setCallback(this, function(response) {
-            var state = response.getState();
-            if(state === "SUCCESS") {
-                component.set("v.opportunity", response.getReturnValue());
-            } else {
-                console.log('Problem getting opportunity, response state: ' + state);
-            }
-        });
-        $A.enqueueAction(action);
-    },
 
     createRelatedOrder : function(component, event, helper) {
 
@@ -46,5 +30,9 @@
         });
 
         $A.enqueueAction(createOrderAction);
+    },
+
+    handleCancel : function() {
+        $A.get("e.force:closeQuickAction").fire();
     }
 })
