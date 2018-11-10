@@ -75,7 +75,7 @@ Update the version your sfdx-project.json to the next version
             "default": true,
             "package": "generate-order-YOURORG",
             "versionName": "ver 0.1.1",
-            "versionNumber": "0.1.1.NEXT"</b>
+            "versionNumber": "0.1.1.NEXT"
         }
     ],
 ```
