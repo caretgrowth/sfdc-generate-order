@@ -1,7 +1,7 @@
 @IsTest
 public with sharing class CreateOrderFromOpportunityControllerTEST {
 
-    private static void generateData() {
+    @testSetup private static void generateData() {
         // Generate data for testing
         Product2 p1 = new Product2(Name = 'Service 1', 
                                     Family = 'Professional Services');
@@ -45,25 +45,48 @@ public with sharing class CreateOrderFromOpportunityControllerTEST {
         c.LeadSource = 'Advertisement';
         insert c;
         
-        Opportunity o = new Opportunity(name='Test 1 Oppty'
-                                       , accountid = a.id
-                                       , Pricebook2Id = customPB.id
-                                       , StageName = 'Prospecting'
-                                       , CloseDate=date.TODAY());
-        insert o;
+        for(Integer i=0; i<4; i++) {
+            Opportunity o = new Opportunity(name='Test ' + i + ' Oppty'
+                                        , accountid = a.id
+                                        , Pricebook2Id = customPB.id
+                                        , StageName = 'Prospecting'
+                                        , CloseDate=date.TODAY());
+            insert o;
 
-        OpportunityLineItem oli1 = new OpportunityLineItem(OpportunityID=o.id, Product2Id = customPrice1.id, quantity = 1, UnitPrice = 12000);
-        insert oli1;
+            OpportunityLineItem oli1 = new OpportunityLineItem(OpportunityID=o.id, Product2Id = customPrice1.id, quantity = 1, UnitPrice = 12000, ServiceDate=Date.Today());
+            insert oli1;
 
-        OpportunityLineItem oli2 = new OpportunityLineItem(OpportunityID=o.id, Product2Id = customPrice2.id, quantity = 1, UnitPrice = 14000);
-        insert oli2;
+            OpportunityLineItem oli2 = new OpportunityLineItem(OpportunityID=o.id, Product2Id = customPrice2.id, quantity = 1, UnitPrice = 14000, ServiceDate=Date.Today());
+            insert oli2;
+        }
+        
     }
 
-    static testmethod void testOrderCreation() {
-        generateData();
-        Opportunity oppty = [SELECT Id FROM Opportunity LIMIT 1];
-        Order ord = CreateOrderFromOpportunityController.createOrder(oppty.id);
+    static testmethod void testSingleOrderCreation() {
+
+        Opportunity oppty = [SELECT Id FROM Opportunity WHERE Name = 'Test 0 Oppty' LIMIT 1];
+        CreateOrderFromOpportunityController.createOrder(oppty.id);
+        Order ord = [SELECT Id FROM Order WHERE OpportunityId = :oppty.id];
         List<OrderItem> ordItems = [SELECT Id FROM OrderItem WHERE OrderId = :ord.Id];
         system.assertEquals(ordItems.size(),2);
+    }
+
+    static testmethod void testBulkOrderCreation() {
+
+        List<Opportunity> opptys = [SELECT Id FROM Opportunity];
+
+        List<Order> orders = [SELECT Id FROM Order];
+        system.assertEquals(orders.size(),0);
+
+        CreateOrderFromOpportunityController.createOrders(opptys);
+
+        orders = [SELECT Id FROM Order];
+
+        Set<Id> orderIds = (new Map<Id,Order>(orders)).keySet();
+        
+        List<OrderItem> ordItems = [SELECT Id FROM OrderItem WHERE OrderId = :orderIds];
+        system.assertEquals(opptys.size(),4);
+        system.assertEquals(orders.size(),4);
+        system.assertEquals(ordItems.size(),8);
     }
 }
